@@ -1,4 +1,4 @@
-# some notes
+# odds and ends
 
 A one-page site. Everything is in `index.html`. There's no build step, framework or dependencies.
 
@@ -22,11 +22,11 @@ Create the repo and turn on Pages once:
 git init
 git add index.html README.md
 git commit -m "first version"
-gh repo create some-notes --public --source . --push
-gh api -X POST repos/{owner}/some-notes/pages -f "source[branch]=main" -f "source[path]=/"
+gh repo create odds-and-ends --public --source . --push
+gh api -X POST repos/{owner}/odds-and-ends/pages -f "source[branch]=main" -f "source[path]=/"
 ```
 
-After a minute or two the site is live at `https://<your-username>.github.io/some-notes/`.
+After a minute or two the site is live at `https://<your-username>.github.io/odds-and-ends/`.
 
 To publish a new note later:
 
