@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import { getNotes, kindLabel, formatDate, noteUrl } from '../lib/notes';
+
+const notes = await getNotes();
+---
+<Base>
+  <header>
+    <h1>some notes</h1>
+    <p class="lede">things I've been learning.</p>
+  </header>
+
+  <section class="intro" aria-label="about">
+    <p>I'm a student studying tech, but I've never been passionate about it. Since AI arrived, I've also felt like I'm learning less and less. So I've decided to learn things for their own sake, whether they matter or not. If I can't be passionate about tech, I can at least try to be passionate about learning.</p>
+    <p>This site is where that learning ends up. Some of it will be technical concepts I've never managed to explain well out loud, so I'm writing them down properly here. The rest might be anything.</p>
+    <p>Please read it as leisure, not as a resource. Everything here could be learned from AI, and most of it is probably one prompt away. So if something here turns out to be useful to you, that's your doing. You found the meaning and put it to use. No credit needed.</p>
+  </section>
+
+  <section class="shelf" aria-label="notes">
+    <div class="shelf-head">
+      <h2>notes</h2>
+      <div class="filters" role="group" aria-label="filter notes">
+        <button data-f="all" aria-pressed="true">all</button>
+        <button data-f="tech" aria-pressed="false">{kindLabel.tech}</button>
+        <button data-f="anything" aria-pressed="false">{kindLabel.anything}</button>
+      </div>
+    </div>
+
+    <ul class="notes">
+      {notes.map((note) => (
+        <li data-kind={note.data.kind}>
+          <a href={noteUrl(note.id)} data-id={note.id}>
+            <span class="n-title">{note.data.title}</span>
+            <span class="n-meta label">
+              <span>{kindLabel[note.data.kind]}</span>
+              <span>{formatDate(note.data.date)}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="empty mono" hidden={notes.length > 0}>nothing here yet.</p>
+  </section>
+</Base>
+
+<script>
+  // old links like /#big-o point at the note's own page now
+  const old = location.hash && document.querySelector<HTMLAnchorElement>(`a[data-id="${CSS.escape(decodeURIComponent(location.hash.slice(1)))}"]`);
+  if (old) location.replace(old.href);
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filters button');
+  const items = document.querySelectorAll<HTMLLIElement>('.notes li');
+  const empty = document.querySelector<HTMLElement>('.empty')!;
+  buttons.forEach((b) => b.addEventListener('click', () => {
+    buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    let shown = 0;
+    items.forEach((li) => {
+      const show = b.dataset.f === 'all' || li.dataset.kind === b.dataset.f;
+      li.hidden = !show;
+      if (show) shown++;
+    });
+    empty.hidden = shown > 0;
+  }));
+</script>

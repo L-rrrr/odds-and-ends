@@ -1,50 +1,62 @@
 # odds and ends
 
-A one-page site. Everything is in `index.html`. There's no build step, framework or dependencies.
+A small notes site built with [Astro](https://astro.build). Every note is a Markdown file. When you push to `main`, GitHub builds the site and publishes it to https://l-rrrr.github.io/odds-and-ends/.
 
-## Adding a note
+## Writing a note
 
-1. Open `index.html` and find the comment that starts with `to add a note`.
-2. Copy the `<details class="note" ...>` block from that comment and paste it above the other notes, so the newest note is first.
-3. Fill it in:
-   - `id`: a short name with no spaces, like `how-wifi-works`. It becomes the note's link: `yoursite/#how-wifi-works`.
-   - `data-kind`: `tech` for the "tech, explained" filter, `anything` for "anything else". Use the same label in the `n-meta` line.
-   - The title, the month, and the paragraphs. The `analogy` and `prompt` parts are optional, so delete them if you don't want them.
-4. Open `index.html` in a browser to check it.
+1. Create a new file in `src/content/notes/`. The file name becomes the note's link, so use lowercase words joined by dashes, for example `how-wifi-works.md` → `/notes/how-wifi-works/`.
+2. Start the file with this header, then write the note below it in plain Markdown:
 
-## Hosting
+   ```markdown
+   ---
+   title: How Wi-Fi actually works
+   date: 2026-10-21
+   kind: tech          # tech = "tech, explained", anything = "anything else"
+   prompt: explain how wifi works simply   # optional
+   draft: true         # optional: keeps it off the site while you're writing
+   ---
 
-### Option A: GitHub Pages (free, updates when you push)
+   First paragraph.
 
-Create the repo and turn on Pages once:
+   > A line starting with ">" shows as an analogy.
+   ```
+
+3. Preview it on your computer (see below), then push:
+
+   ```bash
+   git add .
+   git commit -m "new note"
+   git push
+   ```
+
+   The site updates a minute or two later. You can watch the build in the repo's **Actions** tab.
+
+Notes are listed newest first, by `date`. Remove `draft: true` (or set it to `false`) when a note is ready.
+
+## Previewing on your computer
+
+Do this once:
 
 ```bash
-git init
-git add index.html README.md
-git commit -m "first version"
-gh repo create odds-and-ends --public --source . --push
-gh api -X POST repos/{owner}/odds-and-ends/pages -f "source[branch]=main" -f "source[path]=/"
+npm install
 ```
 
-After a minute or two the site is live at `https://<your-username>.github.io/odds-and-ends/`.
-
-To publish a new note later:
+Then, whenever you want to preview:
 
 ```bash
-git commit -am "new note"
-git push
+npm run dev
 ```
 
-If the branch is called `master` instead of `main`, change `main` in the `gh api` line to `master`. You can also turn on Pages in the browser instead: the repo's **Settings → Pages**, then choose **Deploy from a branch**, the branch, and `/ (root)`.
+and open http://localhost:4321/odds-and-ends/. The page reloads as you save changes.
 
-### Option B: Netlify Drop (no git, drag and drop)
+## Where things are
 
-1. Go to https://app.netlify.com/drop.
-2. Drag the folder that contains `index.html` onto the page.
-3. You get a live URL straight away. Sign up (free) to keep the site and rename it.
-
-To update it, drag the folder onto the site's **Deploys** tab again.
-
-### Custom domain (optional)
-
-If you buy a domain (around $10 a year), both options can use it. On GitHub it's under **Settings → Pages → Custom domain**, and on Netlify it's under **Domain management**. Each one shows you the DNS records to add at your domain registrar.
+| File | What it is |
+|---|---|
+| `src/content/notes/*.md` | The notes |
+| `src/pages/index.astro` | The home page: title, intro and list of notes |
+| `src/pages/notes/[id].astro` | The page for a single note |
+| `src/layouts/Base.astro` | The parts every page shares: page head, fonts, footer |
+| `src/styles/global.css` | All the styles, including dark mode |
+| `src/content.config.ts` | Which fields a note's header can have |
+| `.github/workflows/deploy.yml` | Builds and publishes the site on every push |

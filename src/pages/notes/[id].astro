@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getNotes, kindLabel, formatDate } from '../../lib/notes';
+
+export async function getStaticPaths() {
+  const notes = await getNotes();
+  return notes.map((note) => ({ params: { id: note.id }, props: { note } }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const home = import.meta.env.BASE_URL;
+---
+<Base title={note.data.title}>
+  <a class="back label" href={home}>← some notes</a>
+
+  <article>
+    <h1>{note.data.title}</h1>
+    <p class="n-meta label">
+      <span>{kindLabel[note.data.kind]}</span>
+      <span>{formatDate(note.data.date)}</span>
+    </p>
+
+    <div class="body">
+      <Content />
+    </div>
+
+    {note.data.prompt && (
+      <div class="prompt">
+        <span class="label">the prompt this replaces</span>
+        <code>"{note.data.prompt}"</code>
+      </div>
+    )}
+  </article>
+</Base>
